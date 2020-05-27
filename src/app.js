@@ -1,32 +1,44 @@
 import './assets/scss/app.scss';
 import $ from 'cash-dom';
-import { polyfill } from 'es6-promise';
-import 'isomorphic-fetch';
 
-polyfill();
+import fetchUserData from './services/githubService';
+import usernameRegex from './shared/constants/usernameRegex';
+import validateUsername from './shared/helpers/usernameValidation';
 
-export class App {
-  initializeApp() {
-    let self = this;
+const App = () => {
+  let profile = null;
 
-    $('.load-username').on('click', function (e) {
-      let userName = $('.username.input').val();
+  const initializeApp = () => {
+    const userNameInput = $('input#username');
+    const loadButton = $('button#load');
 
-      fetch('https://api.github.com/users/' + userName)
+    userNameInput.on('keyup', (e) => {
+      validateUsername(
+        userNameInput.val(),
+        userNameInput,
+        loadButton,
+        usernameRegex
+      );
+    });
+
+    $('.load-username').on('click', (_e) => {
+      fetchUserData(userNameInput.val())
         .then((response) => response.json())
-        .then(function (body) {
-          self.profile = body;
-          self.update_profile();
+        .then((body) => {
+          profile = body;
+          updateProfile();
         });
     });
-  }
+  };
 
-  update_profile() {
+  const updateProfile = () => {
     $('#profile-name').text($('.username.input').val());
-    $('#profile-image').attr('src', this.profile.avatar_url);
-    $('#profile-url')
-      .attr('href', this.profile.html_url)
-      .text(this.profile.login);
-    $('#profile-bio').text(this.profile.bio || '(no information)');
-  }
-}
+    $('#profile-image').attr('src', profile.avatar_url);
+    $('#profile-url').attr('href', profile.html_url).text(profile.login);
+    $('#profile-bio').text(profile.bio || '(no information)');
+  };
+
+  initializeApp();
+};
+
+export default App;
