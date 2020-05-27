@@ -7,6 +7,7 @@ import eventTypes from './shared/constants/eventTypes';
 import validateUsername from './shared/helpers/usernameValidation';
 import CommentItem from './components/Comment';
 import PullRequestItem from './components/PullRequest';
+import toggleLoader from './shared/helpers/toggleLoader';
 
 const App = () => {
   let profile = null;
@@ -26,6 +27,8 @@ const App = () => {
     });
 
     $('.load-username').on('click', (_e) => {
+      toggleLoader(true);
+
       githubApi
         .fetchUserData(userNameInput.val())
         .then((response) => {
@@ -42,7 +45,10 @@ const App = () => {
 
           githubApi
             .fetchUserEvents(userNameInput.val())
-            .then((response) => response.json())
+            .then((response) => {
+              toggleLoader(false);
+              return response.json();
+            })
             .then((body) => {
               history = body.filter((event) => eventTypes.includes(event.type));
 

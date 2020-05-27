@@ -1,6 +1,5 @@
 import { polyfill } from 'es6-promise';
 import 'isomorphic-fetch';
-import $ from 'cash-dom';
 import API_KEY from './api';
 
 polyfill();
