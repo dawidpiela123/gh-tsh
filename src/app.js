@@ -1,12 +1,16 @@
 import './assets/scss/app.scss';
 import $ from 'cash-dom';
 
-import fetchUserData from './services/githubService';
+import githubApi from './services/githubService';
 import usernameRegex from './shared/constants/usernameRegex';
+import eventTypes from './shared/constants/eventTypes';
 import validateUsername from './shared/helpers/usernameValidation';
+import CommentItem from './components/Comment';
+import PullRequestItem from './components/PullRequest';
 
 const App = () => {
   let profile = null;
+  let history = null;
 
   const initializeApp = () => {
     const userNameInput = $('input#username');
@@ -22,10 +26,29 @@ const App = () => {
     });
 
     $('.load-username').on('click', (_e) => {
-      fetchUserData(userNameInput.val())
-        .then((response) => response.json())
+      githubApi
+        .fetchUserData(userNameInput.val())
+        .then((response) => {
+          if (response.status === 404) {
+            $('.profile-text').text('User not found');
+          } else {
+            $('.profile-text').text('Profile');
+          }
+
+          return response.json();
+        })
         .then((body) => {
           profile = body;
+
+          githubApi
+            .fetchUserEvents(userNameInput.val())
+            .then((response) => response.json())
+            .then((body) => {
+              history = body.filter((event) => eventTypes.includes(event.type));
+
+              updateHistory();
+            });
+
           updateProfile();
         });
     });
@@ -36,6 +59,24 @@ const App = () => {
     $('#profile-image').attr('src', profile.avatar_url);
     $('#profile-url').attr('href', profile.html_url).text(profile.login);
     $('#profile-bio').text(profile.bio || '(no information)');
+  };
+
+  const updateHistory = () => {
+    const timelineHistory = $('.timeline');
+    timelineHistory.text('');
+    if (history.length > 0) {
+      history.map((event, index) => {
+        if (event.type === 'PullRequestEvent') {
+          PullRequestItem(event, index);
+        } else if (event.type === 'PullRequestReviewCommentEvent') {
+          CommentItem(event, index);
+        }
+      });
+    } else {
+      timelineHistory.text(
+        `User ${profile.login} has no history with given event types`
+      );
+    }
   };
 
   initializeApp();

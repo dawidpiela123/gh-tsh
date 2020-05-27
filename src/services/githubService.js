@@ -1,9 +1,13 @@
 import { polyfill } from 'es6-promise';
 import 'isomorphic-fetch';
+import $ from 'cash-dom';
 import API_KEY from './api';
 
 polyfill();
 
-const fetchUserData = (userName) => fetch(`${API_KEY}${userName}`);
+export default {
+  fetchUserData: (userName) => fetch(`${API_KEY}${userName}`),
 
-export default fetchUserData;
+  fetchUserEvents: (userName) =>
+    fetch(`https://api.github.com/users/${userName}/events/public`),
+};
