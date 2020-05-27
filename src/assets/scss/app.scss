@@ -1,6 +1,21 @@
 @import "~bulma";
 @import "~bulma-timeline";
 
+$breakpoint-tablet: 768px;
+$breakpoint-screen: 1280px;
+
+@media all and (min-width: $breakpoint-tablet) { 
+  .profile-container.column {
+    width: 50%;
+  }
+}
+
+@media all and (min-width: $breakpoint-screen) { 
+  .profile-container.column {
+    width: 30%;
+  }
+}
+
 .navbar {
   border-bottom: 1px solid #eee;
   margin-bottom: 8px;
