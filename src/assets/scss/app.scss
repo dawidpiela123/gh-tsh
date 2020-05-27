@@ -8,6 +8,7 @@
 
 .gh-username img{
   width: 32px;
+  vertical-align: middle;
 }
 
 #profile-bio{
@@ -16,4 +17,8 @@
 
 .timeline .timeline-item {
   padding-bottom:1em;
+}
+
+.repo-name {
+  margin-top: 2px;
 }
